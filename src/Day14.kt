@@ -53,44 +53,29 @@ fun partTwo(input: List<String>, maskRegex: Regex, instructionRegex: Regex) {
             val address = instructionMatch.groupValues[1].toLong()
             val value = instructionMatch.groupValues[2].toLong()
 
-            var binaryString = java.lang.Long.toBinaryString(address).padStart(36, '0')
-            val newString = binaryString.mapIndexed { index, char ->
-                when (mask[index]) {
-                    '0' -> char
-                    '1' -> '1'
-                    'X' -> 'X'
-                    else -> throw Exception()
-                }
-            }.joinToString("")
-
-            val queue = LinkedList<Pair<String, Int>>()
-            queue.add("" to 0)
-            val addresses = mutableListOf<Long>()
-            while (!queue.isEmpty()) {
-                val current = queue.poll()
-                val string = current.first
-                val index = current.second
-                if (index >= newString.length) {
-                    addresses.add(java.lang.Long.parseLong(string.trim(), 2))
-                }
-                else {
-                    when (val next = newString[index]) {
-                        'X' -> {
-                            queue.add(string.plus('0') to index + 1)
-                            queue.add(string.plus('1') to index + 1)
-                        }
-                        else -> {
-                            queue.add(string.plus(next) to index + 1)
-                        }
-                    }
-                }
-            }
-            addresses.map {a ->
+            var binaryString = address.toPaddedBinaryString()
+            val newString = applyBitmask(mask, binaryString)
+            permuteAddresses(newString).map {a ->
                 memory[a] = value
             }
         }
     }
     println("Part 2 is ${memory.values.sum()}")
+}
+
+fun Long.toPaddedBinaryString() : String {
+    return java.lang.Long.toBinaryString(this).padStart(36, '0')
+}
+
+fun applyBitmask(mask: String, binaryString: String) : String {
+    return binaryString.mapIndexed { index, char ->
+        when (mask[index]) {
+            '0' -> char
+            '1' -> '1'
+            'X' -> 'X'
+            else -> throw Exception()
+        }
+    }.joinToString("")
 }
 
 fun permuteAddresses(binaryString: String) : List<Long> {

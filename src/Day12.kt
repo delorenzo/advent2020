@@ -73,7 +73,7 @@ private data class Position(var x: Int, var y: Int, var facing: Direction = Dire
         }
     }
 
-    fun Double.toRadians() : Double {
+    public fun Double.toRadians() : Double {
         return this * (PI/180)
     }
 
